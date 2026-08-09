@@ -102,3 +102,14 @@ generation, validation gates, and Kaggle submission commands.
 
 Never commit Kaggle credentials. Use the local ignored `.kaggle/access_token`
 file or the Kaggle CLI's supported environment-based authentication.
+
+## Author
+
+Crafted by Henry at SecondOrder AI. Made in Australia.
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE). Adapted
+third-party components and dependencies may carry additional notices or
+license terms; see [`kaggle-v3/THIRD_PARTY_NOTICES.md`](kaggle-v3/THIRD_PARTY_NOTICES.md)
+for the Duck/TAAF attribution and redistribution details.
