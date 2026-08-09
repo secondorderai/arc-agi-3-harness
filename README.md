@@ -30,6 +30,61 @@ Each generation has its own README, tests, configuration, and setup scripts.
 Generated notebooks, model data, run results, logs, virtual environments,
 vendored dependencies, and Kaggle credentials are intentionally ignored.
 
+## Attributions and influences
+
+This is an independent research and experimentation repository. It combines
+original Ouroboros code with adapted open-source code, public benchmark
+infrastructure, model/runtime dependencies, and ideas from public research.
+
+### Adapted code and benchmark infrastructure
+
+- **Duck / TAAF:** `kaggle-v3/src/inference/` and `kaggle-v3/src/taaf/` are
+  adapted from Tufa Labs' public MIT-licensed [Duck ARC-AGI-3 inference
+  harness](https://github.com/Tufalabs/duck-harness), including the Tufa ARC-AGI
+  Framework (TAAF). The v3 experiment lanes and Ouroboros additions are
+  separately developed; `kaggle-v3/THIRD_PARTY_NOTICES.md` records the audited
+  source commit, dataset provenance, and contributor credit.
+- **ARC Prize Foundation:** the benchmark and environment tooling come from
+  [ARC-AGI-3](https://arcprize.org/) and the [ARC-AGI-3-Agents
+  framework](https://github.com/arcprize/ARC-AGI-3-Agents). The v1 and v2 setup
+  workflows download that framework, while v3 uses the
+  [`arc-agi`](https://github.com/arcprize/arc-agi) and `arcengine` packages.
+
+### Models and runtimes
+
+- **Qwen:** local and Kaggle experiments use Qwen3.5/Qwen3.6 models from the
+  [Qwen team](https://github.com/QwenLM/Qwen3.5). Model weights and model-card
+  terms remain subject to the applicable Qwen and checkpoint licenses.
+- **vLLM, Ollama, and MLX:** the inference adapters support the
+  [vLLM](https://github.com/vllm-project/vllm),
+  [Ollama](https://github.com/ollama/ollama), and
+  [MLX](https://github.com/ml-explore/mlx) ecosystems. These are runtime
+  dependencies, not source code copied into this repository.
+- **Kaggle:** public validation and hidden-game submission use the
+  [Kaggle](https://www.kaggle.com/) platform and its CLI; Kaggle's own terms
+  govern remote kernels, datasets, credentials, and competition submissions.
+
+### Research influences
+
+- **Retained reasoning and compaction:** the `duck-memory` and
+  `duck-reasoning` experiments were informed by OpenAI's
+  [ARC-AGI-3 harness analysis](https://openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores/).
+  The local implementation is an independent Qwen/vLLM experiment and does
+  not claim to reproduce OpenAI's model or score.
+- **Adaptive, self-auditing harnesses:** the `duck-poetiq` lane is inspired by
+  [Poetiq's public ARC research](https://poetiq.ai/posts/arcagi_announcement/),
+  especially iterative feedback, self-auditing, selective computation, and
+  model-agnostic orchestration. No Poetiq source code is vendored here.
+- **World models and verification:** the v2 ouro2 lane develops explicit rule
+  induction, replay/backtesting, planning, and reality-over-model verification
+  for unfamiliar games. These ideas are documented in
+  [`kaggle-v2/HOW-IT-WORKS.md`](kaggle-v2/HOW-IT-WORKS.md) and are this
+  repository's own implementation experiments rather than a copied external
+  solver.
+
+See [`kaggle-v3/THIRD_PARTY_NOTICES.md`](kaggle-v3/THIRD_PARTY_NOTICES.md) and
+[`kaggle-v3/LICENSE`](kaggle-v3/LICENSE) for the detailed redistribution notice.
+
 ## Quick start
 
 ```bash
