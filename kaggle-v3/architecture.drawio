@@ -1,0 +1,225 @@
+<mxfile host="65bd71144e">
+    <diagram id="per-game-loop" name="1 - Per-game execution lanes">
+        <mxGraphModel dx="1195" dy="875" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="kaggle-v3 isolated Duck reference, deterministic portfolio, Poetiq, memory, robust, and hybrid lanes" style="text;html=1;align=center;verticalAlign=middle;fontSize=26;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="410" y="20" width="780" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="arcade" value="&lt;b&gt;Direct arc_agi.Arcade session&lt;/b&gt;&lt;br&gt;GameAPI · live frame · valid actions&lt;br&gt;automatic game-over reset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="60" y="160" width="250" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="perception" value="&lt;b&gt;OURO-HYBRID · perception&lt;/b&gt;&lt;br&gt;4× image · ASCII crop · segmentation&lt;br&gt;changed regions · HUD/gameplay&lt;br&gt;object tracks · animation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="380" y="130" width="290" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="ledger" value="&lt;b&gt;HypothesisLedger&lt;/b&gt;&lt;br&gt;world · goal · action models&lt;br&gt;evidence · contradictions · questions&lt;br&gt;plan · cross-level knowledge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="735" y="130" width="285" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="qwen" value="&lt;b&gt;Qwen3.6-27B-FP8&lt;/b&gt;&lt;br&gt;multimodal coding/reasoning driver&lt;br&gt;32K active context · T=.6&lt;br&gt;top-p=.95 · top-k=20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="1090" y="130" width="285" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="sandbox" value="&lt;b&gt;Constrained Python subprocess&lt;/b&gt;&lt;br&gt;serialized frames + action RPC only&lt;br&gt;allowlisted imports/builtins&lt;br&gt;no files · env · network · native · children" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="1075" y="380" width="315" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="helpers" value="&lt;b&gt;General planning helpers&lt;/b&gt;&lt;br&gt;connected components · frame/object diffs&lt;br&gt;shortest path · candidate scoring&lt;br&gt;no game IDs or fixed coordinates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="720" y="400" width="310" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="action" value="&lt;b&gt;action(...)&lt;/b&gt;&lt;br&gt;named or MOUSE(row,col)&lt;br&gt;optional per-step prediction&lt;br&gt;batch stops at every terminal boundary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="385" y="400" width="280" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="verify" value="&lt;b&gt;Verified execution&lt;/b&gt;&lt;br&gt;real transition vs prediction&lt;br&gt;abort queue on first mismatch&lt;br&gt;record evidence or contradiction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="65" y="390" width="260" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="fallback" value="&lt;b&gt;Deterministic failure floor&lt;/b&gt;&lt;br&gt;after 3 model failures / server unavailable&lt;br&gt;normalized movement cycle · component clicks&lt;br&gt;one gated strategic reset per level" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="645" y="650" width="325" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="scheduler" value="&lt;b&gt;Global scheduler&lt;/b&gt;&lt;br&gt;28 sessions · remaining waves&lt;br&gt;20m reserve · 8h40 soft deadline&lt;br&gt;adaptive per-game budgets + cancellation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="1040" y="650" width="300" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="ducklane" value="&lt;b&gt;DUCK-REFERENCE · locked lane&lt;/b&gt;&lt;br&gt;stock ToolAgent prompt + ASCII/segmentation&lt;br&gt;fixed 7,920s cap · 900s analyzer timeout&lt;br&gt;no ledger · rich perception · verification · fallback · strategic reset · adaptive budget" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="60" y="650" width="500" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="robustlane" value="&lt;b&gt;DUCK-ROBUST · confidence-gated fork&lt;/b&gt;&lt;br&gt;stock Duck until two low-confidence windows plus a repeated state/action cycle or contradiction&lt;br&gt;one recovery/level · alternate-seed T=.8 hypothesis · verified T=.2 execution · expectation required · batch ≤ 8" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="60" y="835" width="910" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="memorylane" value="&lt;b&gt;DUCK-MEMORY · Stock Duck + conversation memory&lt;/b&gt;&lt;br&gt;reasoning → reasoning_content · tokenizer sentinel&lt;br&gt;24,576 trigger → structured 16,384 target · latest 8 turns verbatim&lt;br&gt;4 compaction slots · retry once · any emergency trim blocks promotion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13" parent="1" vertex="1">
+                    <mxGeometry x="1040" y="835" width="500" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="portfoliolane" value="&lt;b&gt;DUCK-PORTFOLIO · one conversation, one trajectory&lt;/b&gt;&lt;br&gt;8 Stock actions → 9 generic features → transparent ridge scores&lt;br&gt;Stock · Audit · Deliberate · Contract Repair · no extra selection request&lt;br&gt;optional one-time stalled switch · no IDs, fingerprints, fixed coordinates, or public rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13" parent="1" vertex="1">
+                    <mxGeometry x="350" y="990" width="900" height="115" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="arcade" target="perception" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="perception" target="ledger" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="ledger" target="qwen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="qwen" target="sandbox" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="sandbox" target="helpers" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="helpers" target="action" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="action" target="verify" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e8" value="act" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="verify" target="arcade" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e9" value="contradiction / revision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="verify" target="ledger" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e10" value="failure ≥ 3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="qwen" target="fallback" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1" parent="1" source="fallback" target="action" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e12" value="budget / cancel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="scheduler" target="qwen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e13" value="reference mode" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="arcade" target="ducklane" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e14" value="stock action loop" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="ducklane" target="action" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e15" value="stagnation gate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="ducklane" target="robustlane" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e16" value="prediction-checked recovery" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="robustlane" target="verify" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e17" value="memory-only fork" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="ducklane" target="memorylane" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e18" value="retained private reasoning" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="memorylane" target="qwen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e19" value="first 8 Stock actions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="ducklane" target="portfoliolane" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e20" value="activate selected policy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="portfoliolane" target="action" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="promotion-cycle" name="2 - Evaluation and Kaggle cycle">
+        <mxGraphModel dx="1135" dy="561" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title2" value="Evaluation, promotion, packaging, and submission cycle" style="text;html=1;align=center;verticalAlign=middle;fontSize=26;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="330" y="20" width="940" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="reference" value="&lt;b&gt;Recover + freeze Duck reference&lt;/b&gt;&lt;br&gt;unseeded fidelity kernel, then 5 versions&lt;br&gt;seeds 0–4 · engine mean ≥ 1.20&lt;br&gt;25 games/version · zero infra failures" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="55" y="125" width="280" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="dev" value="&lt;b&gt;Candidate screen&lt;/b&gt;&lt;br&gt;duck-memory-v1: local 25 + seed-0 public&lt;br&gt;later candidates change one variable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="390" y="125" width="240" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="test" value="&lt;b&gt;TEST finalist&lt;/b&gt;&lt;br&gt;9 games · seeds 0–4&lt;br&gt;paired against frozen reference" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="685" y="125" width="250" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="gate" value="&lt;b&gt;Promotion gate&lt;/b&gt;&lt;br&gt;memory seed 0 ≥ 1.20 · all 25 finish&lt;br&gt;sentinel + complete reasoning coverage&lt;br&gt;no trims/failures · 110 rehearsal · &lt;8h40" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13" parent="1" vertex="1">
+                    <mxGeometry x="995" y="105" width="270" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="quarantine" value="&lt;b&gt;QUARANTINE once&lt;/b&gt;&lt;br&gt;3 games · selected candidate&lt;br&gt;then freeze again" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="1320" y="125" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="local" value="&lt;b&gt;Local integration&lt;/b&gt;&lt;br&gt;25 games · qwen3.5:4b-mlx&lt;br&gt;M1 16 GB · 2 workers · 6m/game&lt;br&gt;not a 27B score proxy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="90" y="380" width="285" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="rehearsal" value="&lt;b&gt;110-clone rehearsal&lt;/b&gt;&lt;br&gt;scripted model · unique IDs&lt;br&gt;28 sessions · resets · cancellation&lt;br&gt;competition HTTP + final artifact" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="435" y="380" width="290" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="dataset" value="&lt;b&gt;Private source dataset&lt;/b&gt;&lt;br&gt;MIT notices · source only&lt;br&gt;no opaque pickles&lt;br&gt;SHA-256 manifest + version" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="785" y="380" width="270" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="validation" value="&lt;b&gt;RTX validation versions&lt;/b&gt;&lt;br&gt;reference: unseeded + seeds 0–4&lt;br&gt;portfolio: gated seeds 0 then 1&lt;br&gt;pull → runtime/source/config/router audit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="1115" y="380" width="290" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="submission" value="&lt;b&gt;Exact submission kernel&lt;/b&gt;&lt;br&gt;Save &amp; Run: hardware/model smoke&lt;br&gt;rerun: 110 hidden gateway games&lt;br&gt;submit exact completed version" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="1115" y="650" width="290" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="ledger2" value="&lt;b&gt;Submission ledger&lt;/b&gt;&lt;br&gt;kernel/version · submission ref · score&lt;br&gt;git SHA · config hash · validation&lt;br&gt;one submission per day" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="785" y="650" width="270" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="leader" value="&lt;b&gt;Refresh leaderboard&lt;/b&gt;&lt;br&gt;target = max(1.86, current best) + 0.01&lt;br&gt;visible 55 games · private 55 games" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="435" y="650" width="290" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="iterate" value="&lt;b&gt;Next single experiment&lt;/b&gt;&lt;br&gt;thresholds → recent turns → summary schema&lt;br&gt;compactor sampling → active context&lt;br&gt;stop memory v1 after visible score &gt; 0.80" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14" parent="1" vertex="1">
+                    <mxGeometry x="90" y="650" width="285" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="poetiq" value="&lt;b&gt;duck-poetiq-v1 composite&lt;/b&gt;&lt;br&gt;stall audit → discriminating information&lt;br&gt;≤3 hypotheses → one verified probe&lt;br&gt;second failed probe: seed +17&lt;br&gt;yield only before first level progress" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13" parent="1" vertex="1">
+                    <mxGeometry x="90" y="245" width="285" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="poetiqgate" value="&lt;b&gt;Poetiq two-seed gate&lt;/b&gt;&lt;br&gt;mean ≥ 1.4082 · levels ≥ 18/10&lt;br&gt;nonzero games ≥ 15/9&lt;br&gt;top-three-trimmed lift · no infra failures" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12" parent="1" vertex="1">
+                    <mxGeometry x="1115" y="245" width="290" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="portfolio" value="&lt;b&gt;duck-portfolio-v1&lt;/b&gt;&lt;br&gt;8-action Stock warm-up&lt;br&gt;LOO ridge router · one live trajectory&lt;br&gt;Stock / Audit / Deliberate / Contract Repair" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12" parent="1" vertex="1">
+                    <mxGeometry x="420" y="255" width="300" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="portfoliogate" value="&lt;b&gt;Portfolio gates&lt;/b&gt;&lt;br&gt;offline lift ≥ .10 + breadth&lt;br&gt;seed 0 ≥ 2.5631 · 18 levels · 15 games&lt;br&gt;seed 1 floor + two-seed trimmed/mean" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12" parent="1" vertex="1">
+                    <mxGeometry x="765" y="245" width="300" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="p1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="reference" target="dev" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="dev" target="test" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p3" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="test" target="gate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p4" value="pass" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="gate" target="quarantine" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p5" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="local" target="rehearsal" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p6" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="rehearsal" target="dataset" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p7" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="dataset" target="validation" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p8" value="gate passes" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="validation" target="submission" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p9" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="submission" target="ledger2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p10" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="ledger2" target="leader" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p11" value="target not beaten" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="leader" target="iterate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p12" value="screen again" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="iterate" target="dev" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p13" value="infrastructure evidence" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="rehearsal" target="gate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p14" value="composite protocol" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="poetiq" target="poetiqgate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p15" value="prospective route" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1" parent="1" source="portfolio" target="portfoliogate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="p16" value="both seeds pass" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;endArrow=block;endFill=1" parent="1" source="portfoliogate" target="validation" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

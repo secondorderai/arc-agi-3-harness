@@ -1,0 +1,192 @@
+{
+  "candidate_order": [
+    "stock",
+    "audit",
+    "deliberate",
+    "contract-repair"
+  ],
+  "cross_validation": {
+    "distinct_non_stock_policies": 2,
+    "game_count": 25,
+    "mean_lift": 0.4415481224332116,
+    "method": "leave-one-game-out-runtime-parity",
+    "passed": true,
+    "routed_clipped_mean": 1.9201007869749132,
+    "routed_nonzero_games": 13,
+    "selected_policy_counts": {
+      "audit": 5,
+      "contract-repair": 1,
+      "stock": 19
+    },
+    "stock_clipped_mean": 1.4785526645417015,
+    "stock_nonzero_games": 13,
+    "uncertainty_method": "training-fold-loo-rmse-global-per-policy"
+  },
+  "experiment": "duck-portfolio-parity-v1",
+  "feature_means": {
+    "changed_area_fraction": 0.01549072265625,
+    "component_count": 0.13546875,
+    "gameplay_change_fraction": 0.72,
+    "hud_only_change_fraction": 0.21,
+    "mouse_action_fraction": 0.46,
+    "non_background_color_count": 0.40533333333333343,
+    "repeated_action_fraction": 0.2228571428571428,
+    "repeated_shape_fraction": 0.5834007807128689,
+    "symmetry_fraction": 0.83587890625
+  },
+  "feature_names": [
+    "non_background_color_count",
+    "component_count",
+    "repeated_shape_fraction",
+    "symmetry_fraction",
+    "mouse_action_fraction",
+    "gameplay_change_fraction",
+    "hud_only_change_fraction",
+    "repeated_action_fraction",
+    "changed_area_fraction"
+  ],
+  "feature_scales": {
+    "changed_area_fraction": 0.02356087004085669,
+    "component_count": 0.14427011883096238,
+    "gameplay_change_fraction": 0.20396078054371136,
+    "hud_only_change_fraction": 0.21130546609115441,
+    "mouse_action_fraction": 0.4509988913511872,
+    "non_background_color_count": 0.10818913480053757,
+    "repeated_action_fraction": 0.2558060489782788,
+    "repeated_shape_fraction": 0.2762659097076327,
+    "symmetry_fraction": 0.1049545589392794
+  },
+  "forbidden_runtime_inputs": [
+    "game identifiers",
+    "coordinates",
+    "full-frame hashes",
+    "public-game rules"
+  ],
+  "models": {
+    "audit": {
+      "coefficients": {
+        "changed_area_fraction": 1.1711834936147083,
+        "component_count": -0.5304059381447086,
+        "gameplay_change_fraction": -0.1991755885208083,
+        "hud_only_change_fraction": 0.6125434489824099,
+        "mouse_action_fraction": 0.3844582304271285,
+        "non_background_color_count": -0.01613405310863265,
+        "repeated_action_fraction": -0.27879145564121416,
+        "repeated_shape_fraction": 0.09771737338305227,
+        "symmetry_fraction": -0.4054286775499697
+      },
+      "intercept": 1.810196918428939,
+      "loo_rmse": 2.562275666026444
+    },
+    "contract-repair": {
+      "coefficients": {
+        "changed_area_fraction": 0.0015185106935689066,
+        "component_count": -0.37410195937353613,
+        "gameplay_change_fraction": -0.21543207063801925,
+        "hud_only_change_fraction": 0.6077928527855644,
+        "mouse_action_fraction": 0.32351625478954865,
+        "non_background_color_count": 0.18859121033783177,
+        "repeated_action_fraction": 0.18882792975794127,
+        "repeated_shape_fraction": 0.13588758378210047,
+        "symmetry_fraction": -0.1281091671375409
+      },
+      "intercept": 1.133470610731428,
+      "loo_rmse": 1.8321981387026858
+    },
+    "deliberate": {
+      "coefficients": {
+        "changed_area_fraction": 0.01951004233857482,
+        "component_count": -0.1827668313675154,
+        "gameplay_change_fraction": 0.36013846196764565,
+        "hud_only_change_fraction": 0.16102610160542052,
+        "mouse_action_fraction": 0.3858760151056661,
+        "non_background_color_count": 0.044642269780526156,
+        "repeated_action_fraction": 0.16557800018067048,
+        "repeated_shape_fraction": 0.13587842119643406,
+        "symmetry_fraction": 0.09880849348660087
+      },
+      "intercept": 1.1328435860795165,
+      "loo_rmse": 1.692501811308911
+    },
+    "stock": {
+      "coefficients": {
+        "changed_area_fraction": 1.1834282855527822,
+        "component_count": -0.061394961122188126,
+        "gameplay_change_fraction": 0.22401017887722197,
+        "hud_only_change_fraction": -0.06754997540244352,
+        "mouse_action_fraction": 0.08982724404616321,
+        "non_background_color_count": -0.12906158092484923,
+        "repeated_action_fraction": -0.5179638605202762,
+        "repeated_shape_fraction": 0.4634131271819394,
+        "symmetry_fraction": 0.08979734425401806
+      },
+      "intercept": 1.4785526645417015,
+      "loo_rmse": 2.256933539506024
+    }
+  },
+  "relative_models": {
+    "audit": {
+      "coefficients": {
+        "changed_area_fraction": -0.012244791938074252,
+        "component_count": -0.46901097702252026,
+        "gameplay_change_fraction": -0.42318576739803004,
+        "hud_only_change_fraction": 0.6800934243848535,
+        "mouse_action_fraction": 0.2946309863809657,
+        "non_background_color_count": 0.11292752781621658,
+        "repeated_action_fraction": 0.23917240487906263,
+        "repeated_shape_fraction": -0.36569575379888747,
+        "symmetry_fraction": -0.4952260218039877
+      },
+      "intercept": 0.33164425388723723,
+      "loo_rmse": 2.3398340928515102
+    },
+    "contract-repair": {
+      "coefficients": {
+        "changed_area_fraction": -1.181909774859214,
+        "component_count": -0.31270699825134807,
+        "gameplay_change_fraction": -0.4394422495152415,
+        "hud_only_change_fraction": 0.6753428281880073,
+        "mouse_action_fraction": 0.2336890107433856,
+        "non_background_color_count": 0.31765279126268103,
+        "repeated_action_fraction": 0.7067917902782176,
+        "repeated_shape_fraction": -0.3275255433998389,
+        "symmetry_fraction": -0.21790651139155928
+      },
+      "intercept": -0.3450820538102738,
+      "loo_rmse": 2.862293193107863
+    },
+    "deliberate": {
+      "coefficients": {
+        "changed_area_fraction": -1.1639182432142074,
+        "component_count": -0.12137187024532696,
+        "gameplay_change_fraction": 0.13612828309042344,
+        "hud_only_change_fraction": 0.22857607700786375,
+        "mouse_action_fraction": 0.2960487710595031,
+        "non_background_color_count": 0.17370385070537536,
+        "repeated_action_fraction": 0.6835418607009471,
+        "repeated_shape_fraction": -0.3275347059855057,
+        "symmetry_fraction": 0.009011149232582904
+      },
+      "intercept": -0.3457090784621852,
+      "loo_rmse": 3.1654536209674866
+    }
+  },
+  "relative_stock_margin": 0.25,
+  "relative_uncertainty_penalty": 0.5,
+  "ridge_alpha": 10.0,
+  "schema_version": 1,
+  "score_clip": 10.0,
+  "stock_margin": 0.25,
+  "training_artifact_sha256": {
+    "audit-metrics-0": "d606a7385888607b90b158ae0e7bb1f4bf00c8fd1e9924095568c543d2d583f8",
+    "contract-repair-metrics-0": "ec0262d0456e88286384e040e93a6b29a19a24b09354b27f20ecc401d0b68a60",
+    "contract-repair-metrics-1": "c2637a07fbd1482a698308ede1a6bb3bb5a403b7c9b8ea5f4e16ef4ac5b39538",
+    "deliberate-metrics-0": "41afea619c90e4d5d90ee15de14f6ee70da22a8ee30e9060ec29adb2738a96ae",
+    "stock-metrics-0": "17b9ce4b1d947b77d6b501f2c6033d396fea52ea1b88e17f0d2399f5563d6769",
+    "stock-metrics-1": "8dd12d61e150365af02e27abd24096a06852cd7431434a33fc3d6f12fba2c109",
+    "stock-metrics-2": "f114db6b460ca91b60a319ee02f0a961e06c7bcc594a5baa3ddeb3f21620f3a8",
+    "stock-prefix-events": "ae620b1358202121213299539b61b6ddbaed9a3f424c1655acaa2584d22f3213"
+  },
+  "uncertainty_penalty": 0.5,
+  "warmup_actions": 8
+}

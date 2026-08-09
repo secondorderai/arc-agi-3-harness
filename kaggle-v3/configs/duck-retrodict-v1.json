@@ -1,0 +1,9 @@
+{
+  "experiment": "duck-retrodict-v1",
+  "mode": "duck-retrodict",
+  "profile": "rtx-validation",
+  "model_id": "vrfai/Qwen3.6-27B-FP8",
+  "seed": 0,
+  "retrodict_max_rules": 256,
+  "retrodict_prediction_threshold": 0.9
+}

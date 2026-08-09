@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ouro2 — How It Works (3D)</title>
+<!--
+  Interactive 3D illustration of the ouro2 ARC-AGI-3 agent (kaggle-v2).
+  WebGL via Three.js (ES modules from a CDN).
+
+  Open it with a local web server (module imports are blocked over file://):
+      cd kaggle-v2
+      python3 -m http.server 8000
+      # then visit  http://localhost:8000/how-it-works.html
+  Or use the VS Code "Live Server" extension.
+-->
+<style>
+  :root{
+    --bg:#070b16; --ink:#e7edf7; --dim:#9fb0c8; --line:rgba(150,180,230,.16);
+    --card:rgba(14,20,36,.72); --cardb:rgba(120,150,210,.22);
+    --cyan:#5fd0ff; --blue:#6c8ebf; --green:#82b366; --yellow:#d6b656;
+    --purple:#9673a6; --gold:#ffcf4d; --red:#e0524d;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);overflow:hidden}
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+
+  .ui{position:fixed;z-index:10;pointer-events:none}
+  .ui *{pointer-events:auto}
+
+  /* Title (top-left) */
+  #title{top:16px;left:18px;max-width:min(46vw,420px)}
+  #title h1{margin:0;font-size:19px;letter-spacing:.2px}
+  #title h1 b{color:var(--cyan)}
+  #title p{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--dim)}
+
+  /* Phase badge (top-right) */
+  #phase{top:16px;right:18px;text-align:right;max-width:min(44vw,380px)}
+  #phaseBadge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+    font-size:13px;font-weight:600;letter-spacing:1px;padding:7px 12px;border-radius:999px;
+    background:var(--card);border:1px solid var(--cardb);backdrop-filter:blur(8px)}
+  #phaseDot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  #phaseText{margin:9px 2px 0;font-size:12.5px;line-height:1.5;color:var(--dim)}
+
+  /* Bottom-left: legend + concepts */
+  #left{left:18px;bottom:16px;width:min(40vw,300px)}
+  .panel{background:var(--card);border:1px solid var(--cardb);border-radius:14px;
+    padding:12px 13px;backdrop-filter:blur(8px)}
+  .panel h3{margin:0 0 9px;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);font-weight:700}
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;font-size:11.5px;color:var(--dim)}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .swatch{width:11px;height:11px;border-radius:3px;flex:none}
+  .concepts{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .concepts button{flex:1;min-width:84px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--ink);
+    background:rgba(95,208,255,.10);border:1px solid rgba(95,208,255,.35);border-radius:9px;
+    padding:8px 6px;cursor:pointer;transition:.15s}
+  .concepts button:hover{background:rgba(95,208,255,.22);transform:translateY(-1px)}
+
+  /* Bottom-right: controls */
+  #right{right:18px;bottom:16px;display:flex;flex-direction:column;gap:9px;align-items:flex-end}
+  .controls{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--cardb);
+    border-radius:12px;padding:8px 12px;backdrop-filter:blur(8px);font-size:12px;color:var(--dim)}
+  .controls button{font-family:var(--font);font-size:12px;font-weight:600;color:var(--ink);
+    background:rgba(255,255,255,.06);border:1px solid var(--cardb);border-radius:8px;padding:6px 11px;cursor:pointer}
+  .controls button:hover{background:rgba(255,255,255,.13)}
+  .controls input[type=range]{width:96px;accent-color:var(--cyan)}
+  .hint{font-size:11px;color:var(--dim);opacity:.8;margin-right:2px}
+
+  /* Info card (center-ish, appears on click) */
+  #info{left:50%;bottom:96px;transform:translateX(-50%);width:min(92vw,560px);display:none}
+  #info .panel{padding:15px 17px}
+  #info h2{margin:0 0 8px;font-size:16px;display:flex;align-items:center;gap:9px}
+  #info .tag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.5px;padding:3px 8px;border-radius:6px;color:#0a0f1c}
+  #info p{margin:0;font-size:13px;line-height:1.6;color:#d3ddee}
+  #info .close{position:absolute;top:10px;right:12px;cursor:pointer;color:var(--dim);border:none;background:none;font-size:18px;line-height:1}
+  #info .panel{position:relative}
+
+  /* 3D labels */
+  .node-label{font-family:var(--font);font-size:12px;font-weight:600;color:#dbe6f7;
+    padding:3px 9px;border-radius:8px;white-space:nowrap;background:rgba(9,14,26,.66);
+    border:1px solid rgba(140,170,220,.25);transform:translateY(-4px);transition:.2s;text-shadow:0 1px 3px #000}
+  .node-label.active{color:#fff;border-color:var(--cyan);box-shadow:0 0 16px rgba(95,208,255,.5)}
+  .node-label.dim{opacity:.42}
+  .chip{font-family:var(--mono);font-size:10.5px;color:#cfe9d6;background:rgba(10,22,14,.8);
+    border:1px solid rgba(130,179,102,.5);border-radius:7px;padding:3px 7px;white-space:nowrap;
+    box-shadow:0 0 12px rgba(130,179,102,.25);transition:opacity .3s}
+
+  #err{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:var(--bg);padding:24px;text-align:center}
+  #err div{max-width:520px}
+  #err h2{color:var(--cyan)} #err code{font-family:var(--mono);background:#0e1526;padding:2px 6px;border-radius:5px}
+  @media (max-width:720px){
+    #title,#phase{max-width:70vw}
+    .legend{grid-template-columns:1fr}
+    #left{width:min(70vw,300px)}
+  }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- overlays -->
+  <div id="title" class="ui">
+    <h1><b>ouro2</b> — how it learns to play unseen games</h1>
+    <p>The agent is told nothing. It watches the screen, <b>induces the rules</b>,
+       builds a <b>World Model</b>, and <b>plans inside it</b> before spending a real move.
+       Drag to orbit · scroll to zoom · click any stage.</p>
+  </div>
+
+  <div id="phase" class="ui">
+    <div id="phaseBadge"><span id="phaseDot"></span><span id="phaseLabel">OBSERVE</span></div>
+    <div id="phaseText">Booting the loop…</div>
+  </div>
+
+  <div id="left" class="ui">
+    <div class="panel">
+      <h3>The loop (lanes)</h3>
+      <div class="legend">
+        <span><i class="swatch" style="background:#9fb3c8"></i>Environment</span>
+        <span><i class="swatch" style="background:#6c8ebf"></i>Control / plan</span>
+        <span><i class="swatch" style="background:#82b366"></i>Induce / model</span>
+        <span><i class="swatch" style="background:#d6b656"></i>Explore floor</span>
+        <span><i class="swatch" style="background:#9673a6"></i>Oracle (opt. LLM)</span>
+        <span><i class="swatch" style="background:#ffcf4d"></i>Goal / path</span>
+      </div>
+      <div class="concepts">
+        <button data-concept="world">World Model</button>
+        <button data-concept="symbolic">Symbolic AI</button>
+        <button data-concept="agi">AGI</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="right" class="ui">
+    <div class="controls">
+      <button id="playBtn">⏸ Pause</button>
+      <span>Speed</span>
+      <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" />
+      <button id="camBtn">Reset view</button>
+    </div>
+    <span class="hint">Tip: click a glowing stage or a concept chip to read what it does.</span>
+  </div>
+
+  <div id="info" class="ui">
+    <div class="panel">
+      <button class="close" id="infoClose">×</button>
+      <h2><span class="tag" id="infoTag">STAGE</span><span id="infoTitle"></span></h2>
+      <p id="infoBody"></p>
+    </div>
+  </div>
+
+  <div id="err">
+    <div>
+      <h2>Couldn't start WebGL</h2>
+      <p>Your browser blocked the 3D module load. Serve this file over http instead of opening it directly:</p>
+      <p><code>cd kaggle-v2 &amp;&amp; python3 -m http.server 8000</code><br>
+      then open <code>http://localhost:8000/how-it-works.html</code></p>
+      <p id="errMsg" style="color:#e0524d;font-family:var(--mono);font-size:12px"></p>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+  const showError = (msg) => {
+    document.getElementById('err').style.display = 'grid';
+    document.getElementById('errMsg').textContent = msg || '';
+  };
+  window.addEventListener('error', e => showError(e.message));
+
+  try { main(); } catch (e) { showError(String(e)); throw e; }
+
+  function main(){
+  // ---------------------------------------------------------------------------
+  // Renderer, scene, camera
+  // ---------------------------------------------------------------------------
+  const container = document.getElementById('app');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x070b16);
+  scene.fog = new THREE.FogExp2(0x070b16, 0.011);
+
+  const camera = new THREE.PerspectiveCamera(48, innerWidth/innerHeight, 0.1, 500);
+  camera.position.set(19, 17, 23);
+
+  const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.12;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  container.appendChild(renderer.domElement);
+
+  const labelRenderer = new CSS2DRenderer();
+  labelRenderer.setSize(innerWidth, innerHeight);
+  labelRenderer.domElement.style.position = 'absolute';
+  labelRenderer.domElement.style.top = '0';
+  labelRenderer.domElement.style.left = '0';
+  labelRenderer.domElement.style.pointerEvents = 'none';
+  container.appendChild(labelRenderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.target.set(0, 3, 0);
+  controls.maxPolarAngle = Math.PI * 0.49;
+  controls.minDistance = 12;
+  controls.maxDistance = 70;
+
+  // Lights
+  scene.add(new THREE.HemisphereLight(0x8aa2ff, 0x0a0a14, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 1.05); key.position.set(12, 22, 9); scene.add(key);
+  const rim = new THREE.DirectionalLight(0x5fb0ff, 0.5); rim.position.set(-14, 9, -12); scene.add(rim);
+
+  // Starfield backdrop
+  (function stars(){
+    const g = new THREE.BufferGeometry();
+    const n = 900, pos = new Float32Array(n*3);
+    // deterministic scatter (no Math.random dependency for layout stability)
+    for(let i=0;i<n;i++){
+      const a = i*2.399963, r = 60 + (i%140)*0.9, y = ((i*37)%120)-40;
+      pos[i*3]=Math.cos(a)*r; pos[i*3+1]=y; pos[i*3+2]=Math.sin(a)*r;
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    scene.add(new THREE.Points(g, new THREE.PointsMaterial({color:0x33507a,size:0.5,transparent:true,opacity:.7})));
+  })();
+
+  // ---------------------------------------------------------------------------
+  // Stage nodes (the ouroboros ring + fallback/oracle satellites)
+  // ---------------------------------------------------------------------------
+  const LANE = { env:0x9fb3c8, loop:0x6c8ebf, induce:0x82b366, explore:0xd6b656, oracle:0x9673a6 };
+
+  const INFO = {
+    env:{tag:'ENVIRONMENT',color:LANE.env,title:'Game Environment',
+      body:'A 64×64 grid of colored squares. The agent may press a few buttons (actions 1–5, 7) or click a cell (action 6). It is never told which color is the player, what wins, or what kills it — everything must be discovered by acting and watching frames.'},
+    director:{tag:'CONTROL',color:LANE.loop,title:'Director',
+      body:'Runs one turn: first record what the previous action actually did, then decide the next action. It also manages the move budget and, when stuck, drops down to the Explorer floor. It must never crash — its last resort is always a safe exploratory move.'},
+    timeline:{tag:'GROUND TRUTH',color:LANE.loop,title:'Timeline',
+      body:'An append-only log of every (before → action → after) transition. It is the ground truth that every rule guess is tested against. Observations are never edited — only the hypotheses about them are.'},
+    induction:{tag:'LEARNING',color:LANE.induce,title:'Induction',
+      body:'Infers explicit, symbolic rules from the timeline: which color is the avatar, what each button does, what is a hazard, and what the goal is. It does not hand-write rules and it does not ask an LLM to write them — it induces them from the evidence, then narrows any rule that mispredicts.'},
+    model:{tag:'WORLD MODEL',color:LANE.induce,title:'World Model',
+      body:'The induced rules, run by a small fixed interpreter — a runnable copy of the game in the agent’s head. Give it a screen and a button press and it predicts the next screen, so the agent can rehearse moves privately. Only rules that pass backtesting against the whole timeline get certified into it.'},
+    planner:{tag:'PLAN',color:LANE.loop,title:'Planner',
+      body:'Searches inside the World Model (breadth-first) for a path to the goal — trying thousands of imagined move sequences while spending zero real moves. It only trusts a plan if the model is healthy enough (low miss-rate) to be worth acting on.'},
+    executor:{tag:'ACT',color:LANE.loop,title:'Executor',
+      body:'Plays the plan one move at a time and checks reality after each step. Reality outranks the model: if the real screen doesn’t match the prediction, it aborts and sends the surprise back to Induction as a counterexample to fix the rule.'},
+    explorer:{tag:'FALLBACK',color:LANE.explore,title:'Explorer floor',
+      body:'When there is no trustworthy model yet, this gathers evidence: try untried buttons, then promising clicks, then rotate through options. It remembers which actions did nothing (permanent no-op bans) so it never wastes precious moves repeating them.'},
+    oracle:{tag:'OPTIONAL LLM',color:LANE.oracle,title:'Oracle (optional 4B)',
+      body:'A small language model used only as a tie-breaker: it picks one answer from a multiple-choice list the symbolic code already generated (e.g. “which is the goal?”), at temperature 0. It never authors rules, and if it is slow or wrong the system falls back to the CPU default. The winning product runs with zero LLM calls.'},
+  };
+
+  const CONCEPTS = {
+    world:{tag:'CONCEPT',color:0x5fd0ff,title:'World Model',nodes:['induction','model','planner'],
+      body:'A World Model is the agent’s internal, runnable copy of the game. Feed it the current screen + a button press and it predicts the next screen — no real move spent. That lets the Planner rehearse thousands of move sequences in imagination (the translucent board floating above), find one that reaches the goal, and only then act. Here the model is made of explicit rules, it is continuously re-checked against reality, and reality always wins.'},
+    symbolic:{tag:'CONCEPT',color:0x82b366,title:'Symbolic AI',nodes:['timeline','induction','model','planner','executor'],
+      body:'Symbolic AI stores knowledge as explicit, readable, testable rules — move / click / tick / hazard / goal — instead of opaque neural weights. Each rule is provably right or wrong: replay the whole history and see if it would have predicted what happened (backtesting). You can print exactly what the agent believes, it is deterministic, and it runs on a CPU with zero AI-model calls. The rules are learned by induction, not written by a person or an LLM.'},
+    agi:{tag:'CONCEPT',color:0xffcf4d,title:'AGI — general intelligence',nodes:['env','director','timeline','induction','model','planner','executor','explorer','oracle'],
+      body:'ARC-AGI-3 measures skill-acquisition efficiency: how fast a system learns a brand-new game from a handful of frames, with no pre-training — the opposite of a bot that memorized one game. ouro2 builds understanding (an explicit theory of the game), not reflexes, and is actively defended against memorization by a hidden holdout set of games it may never tune against. That combination — learn an unseen world from scratch, model it, and plan with it — is a small concrete step toward general intelligence.'},
+  };
+
+  const R = 11.5;                 // ring radius
+  const ringKeys = ['env','director','timeline','induction','model','planner','executor'];
+  const angleOf = {};
+  ringKeys.forEach((k,i)=>{ angleOf[k] = -Math.PI/2 + i*(Math.PI*2/ringKeys.length); });
+
+  const nodePos = {};             // key -> Vector3
+  ringKeys.forEach(k=>{
+    const a = angleOf[k];
+    nodePos[k] = new THREE.Vector3(Math.cos(a)*R, 3.2, Math.sin(a)*R);
+  });
+  // fallback + oracle satellites
+  {
+    const a = (angleOf['env'] + angleOf['director'])/2;
+    nodePos['explorer'] = new THREE.Vector3(Math.cos(a)*5.6, 1.4, Math.sin(a)*5.6);
+    const ai = angleOf['induction'];
+    nodePos['oracle'] = new THREE.Vector3(Math.cos(ai)*15.4, 3.6, Math.sin(ai)*15.4);
+  }
+
+  const nodes = {};   // key -> {group, mesh, mat, label, baseColor, lane}
+  const pickables = [];
+
+  function makeNode(key, small=false){
+    const info = INFO[key];
+    const c = new THREE.Color(info.color);
+    const grp = new THREE.Group();
+    grp.position.copy(nodePos[key]);
+    grp.lookAt(0, grp.position.y, 0);
+
+    const w = small?1.6:2.7, h = small?1.0:1.55, d = 0.5;
+    const mat = new THREE.MeshStandardMaterial({
+      color:c, emissive:c, emissiveIntensity:0.18, metalness:0.35, roughness:0.45,
+    });
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d,1,1,1), mat);
+    mesh.userData.key = key;
+    grp.add(mesh);
+    pickables.push(mesh);
+
+    // thin bright frame
+    const edge = new THREE.LineSegments(
+      new THREE.EdgesGeometry(mesh.geometry),
+      new THREE.LineBasicMaterial({ color:c, transparent:true, opacity:0.55 }));
+    grp.add(edge);
+
+    // label
+    const div = document.createElement('div');
+    div.className = 'node-label';
+    div.textContent = info.title;
+    const label = new CSS2DObject(div);
+    label.position.set(0, h/2 + 0.55, 0);
+    grp.add(label);
+
+    scene.add(grp);
+    nodes[key] = { group:grp, mesh, mat, edge, labelDiv:div, baseColor:c,
+                   baseEmissive:0.18, glow:0.18, target:0.18 };
+  }
+  Object.keys(INFO).forEach(k => makeNode(k, k==='oracle' || k==='explorer'));
+
+  // ---------------------------------------------------------------------------
+  // Edges (curved tubes) + flowing pulses
+  // ---------------------------------------------------------------------------
+  const edges = {};        // "from>to" -> {curve, mat, ring}
+  function addEdge(from, to, opt={}){
+    const a = nodePos[from].clone(), b = nodePos[to].clone();
+    const mid = a.clone().add(b).multiplyScalar(0.5);
+    if(opt.outward){
+      const dir = new THREE.Vector3(mid.x,0,mid.z).normalize().multiplyScalar(opt.outward);
+      mid.add(dir);
+    }
+    mid.y += (opt.lift ?? 1.4);
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+    const col = new THREE.Color(opt.color ?? 0x5f7fae);
+    const mat = new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:opt.idle ?? 0.22 });
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 44, 0.045, 8, false), mat);
+    scene.add(tube);
+    edges[`${from}>${to}`] = { curve, mat, idle:opt.idle ?? 0.22, col, ring:!!opt.ring };
+  }
+  // ring (bow outward so tubes arc around the board)
+  for(let i=0;i<ringKeys.length;i++){
+    addEdge(ringKeys[i], ringKeys[(i+1)%ringKeys.length], { outward:2.2, lift:1.3, ring:true, idle:0.22 });
+  }
+  // fallback branch + feedback + oracle
+  addEdge('director','explorer', { lift:0.6, color:0xd6b656, idle:0.16 });
+  addEdge('explorer','env',      { lift:0.6, color:0xd6b656, idle:0.16 });
+  addEdge('executor','induction',{ lift:6.5, color:0xe0524d, idle:0.14 }); // abort → counterexample (flies over)
+  addEdge('oracle','induction',  { lift:0.8, color:0x9673a6, idle:0.16 });
+
+  // ambient pulses drifting around the ring — the perpetual "loop"
+  const pulseGeo = new THREE.SphereGeometry(0.11, 12, 12);
+  const ambient = [];
+  ringKeys.forEach((k,i)=>{
+    const e = edges[`${k}>${ringKeys[(i+1)%ringKeys.length]}`];
+    const m = new THREE.Mesh(pulseGeo, new THREE.MeshBasicMaterial({
+      color:0x5fd0ff, transparent:true, opacity:0.85, blending:THREE.AdditiveBlending }));
+    scene.add(m);
+    ambient.push({ mesh:m, curve:e.curve, off:i/ringKeys.length });
+  });
+  // bright focus pulse on the currently-active edge
+  const focus = new THREE.Mesh(new THREE.SphereGeometry(0.22,16,16),
+    new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95, blending:THREE.AdditiveBlending }));
+  focus.visible = false; scene.add(focus);
+  const focusGlow = new THREE.Mesh(new THREE.SphereGeometry(0.5,16,16),
+    new THREE.MeshBasicMaterial({ color:0x5fd0ff, transparent:true, opacity:0.35, blending:THREE.AdditiveBlending }));
+  focus.add(focusGlow);
+
+  // ---------------------------------------------------------------------------
+  // The game board (reality) + the World-Model ghost board (imagination)
+  // ---------------------------------------------------------------------------
+  const N = 12, TILE = 1.0, HALF = (N-1)/2, GHOST_Y = 6.4;
+  const cell = (cx,cy,y=0)=> new THREE.Vector3((cx-HALF)*TILE, y, (cy-HALF)*TILE);
+  const idx = (cx,cy)=> cy*N+cx;
+
+  // board base
+  const board = new THREE.Group(); scene.add(board);
+  board.add(new THREE.Mesh(
+    new THREE.BoxGeometry(N*TILE+0.6, 0.4, N*TILE+0.6),
+    new THREE.MeshStandardMaterial({ color:0x0d1526, metalness:0.2, roughness:0.8 })
+  )).position.y = -0.22;
+  const gridHelp = new THREE.GridHelper(N*TILE, N, 0x2a3c60, 0x1a2743);
+  gridHelp.position.y = 0.02; board.add(gridHelp);
+
+  const dynamic = new THREE.Group(); board.add(dynamic);   // walls/hazards/goal (rebuilt per level)
+
+  // avatar (persistent)
+  const avatarMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.66,0.66,0.66),
+    new THREE.MeshStandardMaterial({ color:0x7ee081, emissive:0x2f7d3f, emissiveIntensity:0.7, roughness:0.35 }));
+  board.add(avatarMesh);
+
+  // ghost / world-model board
+  const ghost = new THREE.Group(); ghost.position.y = GHOST_Y; scene.add(ghost);
+  const ghostBase = new THREE.Mesh(
+    new THREE.BoxGeometry(N*TILE+0.6, 0.12, N*TILE+0.6),
+    new THREE.MeshBasicMaterial({ color:0x0e243a, transparent:true, opacity:0.0 }));
+  ghost.add(ghostBase);
+  const ghostGrid = new THREE.GridHelper(N*TILE, N, 0x2f6f9e, 0x1d3f5c);
+  ghostGrid.material.transparent = true; ghost.add(ghostGrid);
+  // search-marker pool
+  const markerGeo = new THREE.BoxGeometry(0.7,0.12,0.7);
+  const markers = [];
+  for(let i=0;i<N*N;i++){
+    const m = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({
+      color:0x5fd0ff, transparent:true, opacity:0.0, blending:THREE.AdditiveBlending }));
+    m.visible = false; ghost.add(m); markers.push(m);
+  }
+  const ghostAvatar = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5),
+    new THREE.MeshBasicMaterial({ color:0xbff5c8, transparent:true, opacity:0.0 }));
+  ghost.add(ghostAvatar);
+  // "imagining" beam linking reality → world model
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,GHOST_Y-0.6,10),
+    new THREE.MeshBasicMaterial({ color:0x5fd0ff, transparent:true, opacity:0.0, blending:THREE.AdditiveBlending }));
+  beam.position.y = GHOST_Y/2; scene.add(beam);
+
+  let ghostOpacity = 0, ghostTarget = 0;
+
+  // rule chips near Induction (fade in during INDUCE→PLAN)
+  const CHIP_TEXT = ['▲ press → avatar +y','■ touch → GAME_OVER','◆ reach → WIN','backtest fit 100% ✓'];
+  const chips = [];
+  CHIP_TEXT.forEach((t,i)=>{
+    const div = document.createElement('div'); div.className='chip'; div.textContent=t; div.style.opacity='0';
+    const obj = new CSS2DObject(div);
+    const ang = angleOf['induction'] + (i-1.5)*0.16;
+    obj.position.set(Math.cos(ang)*3.0, 2.4 - i*0.9, Math.sin(ang)*3.0);
+    nodes['induction'].group.add(obj);   // note: group is rotated; positions are local but fine as floating chips
+    chips.push(div);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Level model + BFS (this is a toy of what the real Planner does)
+  // ---------------------------------------------------------------------------
+  let grid, avatar, goalCell, plan;   // plan = {path:[cells], visit:[cells]}
+  let rng = 1234567;
+  const rand = ()=> (rng = (rng*1103515245+12345) & 0x7fffffff) / 0x7fffffff; // seeded, deterministic
+
+  function bfs(sx,sy){
+    const prev = new Int32Array(N*N).fill(-2);
+    const q=[[sx,sy]]; prev[idx(sx,sy)]=-1; const visit=[];
+    while(q.length){
+      const [x,y]=q.shift(); visit.push([x,y]);
+      if(x===goalCell[0] && y===goalCell[1]){
+        const path=[]; let ci=idx(x,y);
+        while(ci!==-1){ path.push([ci%N, (ci/N)|0]); ci=prev[ci]; }
+        path.reverse(); return {path, visit};
+      }
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=x+dx, ny=y+dy;
+        if(nx<0||ny<0||nx>=N||ny>=N) continue;
+        const ni=idx(nx,ny);
+        if(prev[ni]!==-2) continue;
+        const v=grid[ni];
+        if(v===1||v===2) continue;         // wall / hazard block the path
+        prev[ni]=idx(x,y); q.push([nx,ny]);
+      }
+    }
+    return {path:[], visit};
+  }
+
+  function newLevel(){
+    for(let attempt=0; attempt<80; attempt++){
+      grid = new Int8Array(N*N);
+      const nWall = 14 + ((rand()*6)|0);
+      const nHaz  = 7 + ((rand()*5)|0);
+      const put = (v,n)=>{ let c=0; while(c<n){ const x=(rand()*N)|0,y=(rand()*N)|0;
+        if(grid[idx(x,y)]===0){ grid[idx(x,y)]=v; c++; } } };
+      put(1,nWall); put(2,nHaz);
+      // avatar on the left third, goal on the right third
+      const pick=(x0,x1)=>{ for(let t=0;t<50;t++){ const x=(x0+rand()*(x1-x0))|0, y=(rand()*N)|0;
+        if(grid[idx(x,y)]===0) return [x,y]; } return null; };
+      avatar = pick(0,N*0.34); goalCell = pick(N*0.62,N);
+      if(!avatar||!goalCell) continue;
+      grid[idx(goalCell[0],goalCell[1])] = 3;
+      const r = bfs(avatar[0],avatar[1]);
+      if(r.path.length>=2){ buildBoard(); return; }
+    }
+    // extremely unlikely fallback: empty board
+    grid=new Int8Array(N*N); avatar=[1,6]; goalCell=[N-2,6];
+    grid[idx(goalCell[0],goalCell[1])]=3; buildBoard();
+  }
+
+  const wallMat = new THREE.MeshStandardMaterial({ color:0x5a6884, metalness:0.2, roughness:0.7 });
+  const hazMat  = new THREE.MeshStandardMaterial({ color:0xe0524d, emissive:0xe0524d, emissiveIntensity:0.5, roughness:0.5 });
+  let goalRing, hazMeshes;
+  function buildBoard(){
+    while(dynamic.children.length) { const c=dynamic.children.pop(); c.geometry?.dispose?.(); }
+    hazMeshes=[];
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+      const v=grid[idx(x,y)];
+      if(v===1){
+        const m=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.95,0.9), wallMat);
+        m.position.copy(cell(x,y,0.45)); dynamic.add(m);
+      } else if(v===2){
+        const m=new THREE.Mesh(new THREE.BoxGeometry(0.86,0.2,0.86), hazMat);
+        m.position.copy(cell(x,y,0.1)); dynamic.add(m); hazMeshes.push(m);
+      }
+    }
+    // goal pillar + ring
+    const gpos = cell(goalCell[0],goalCell[1],0);
+    const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,1.4,12),
+      new THREE.MeshStandardMaterial({color:0xffcf4d,emissive:0xffcf4d,emissiveIntensity:0.8}));
+    pillar.position.copy(gpos).setY(0.7); dynamic.add(pillar);
+    goalRing=new THREE.Mesh(new THREE.TorusGeometry(0.42,0.06,8,24),
+      new THREE.MeshBasicMaterial({color:0xffcf4d,transparent:true,opacity:0.9}));
+    goalRing.rotation.x=Math.PI/2; goalRing.position.copy(gpos).setY(0.15); dynamic.add(goalRing);
+
+    avatarMesh.position.copy(cell(avatar[0],avatar[1],0.45));
+    // hide all ghost markers for the fresh level
+    markers.forEach(m=>{ m.visible=false; m.material.opacity=0; });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase machine — the story the animation tells, on repeat
+  // ---------------------------------------------------------------------------
+  const PHASES = [
+    { id:'OBSERVE', edge:'env>director',       node:'director',  color:0x9fb3c8,
+      text:'The environment sends the current frame. The Director takes the turn.' },
+    { id:'RECORD',  edge:'director>timeline',  node:'timeline',  color:0x6c8ebf,
+      text:'What the last action actually did is appended to the Timeline — ground truth, never edited.' },
+    { id:'INDUCE',  edge:'timeline>induction', node:'induction', color:0x82b366,
+      text:'Induction infers symbolic rules from the timeline: avatar, buttons, hazards, goal.' },
+    { id:'CERTIFY', edge:'induction>model',    node:'model',     color:0x82b366,
+      text:'Rules that survive backtesting are certified into the World Model — a runnable copy of the game.' },
+    { id:'PLAN',    edge:'model>planner',      node:'planner',   color:0x5fd0ff,
+      text:'The Planner searches inside the World Model (above) — thousands of imagined moves, zero real ones.' },
+    { id:'EXECUTE', edge:'planner>executor',   node:'executor',  color:0x6c8ebf,
+      text:'The Executor plays one real move, verifying reality against the prediction after each step.' },
+    { id:'ACT',     edge:'executor>env',       node:'env',       color:0x9fb3c8,
+      text:'The action hits the game and the frame updates. The loop closes — the ouroboros cycle.' },
+  ];
+  const PHASE_T = 2.15;   // seconds per phase (before speed)
+  let phaseIdx = 0, phaseTime = 0, running = true, speed = 1, cycle = 0;
+  let moveFrom = null, moveTo = null, exploreCycle = false, abortCycle = false;
+
+  function planFromAvatar(){ plan = bfs(avatar[0], avatar[1]); }
+
+  function enterPhase(i){
+    const ph = PHASES[i];
+    setActiveEdge(ph.edge, ph.color);
+    setActiveNode(ph.node);
+    setPhaseUI(ph.id, ph.text, ph.color);
+
+    if(ph.id==='OBSERVE'){
+      cycle++;
+      exploreCycle = (cycle % 4 === 0);            // occasionally: no trustworthy model yet
+      abortCycle   = (cycle % 5 === 2);            // occasionally: prediction mismatch
+    }
+    if(ph.id==='INDUCE') chips.forEach(c=>c.style.opacity='1');
+    if(ph.id==='PLAN'){ planFromAvatar(); ghostTarget = 1; }
+    else if(ph.id==='OBSERVE') ghostTarget = 0;
+    // prepare the real move on EXECUTE
+    if(ph.id==='EXECUTE'){
+      moveFrom = avatar.slice();
+      moveTo = (plan && plan.path.length>=2 && !abortCycle) ? plan.path[1] : avatar.slice();
+    }
+    // commit the move as ACT begins
+    if(ph.id==='ACT'){
+      if(moveTo){ avatar = moveTo.slice(); avatarMesh.position.copy(cell(avatar[0],avatar[1],0.45)); }
+      if(avatar[0]===goalCell[0] && avatar[1]===goalCell[1]){ winLevel(); }
+      chips.forEach(c=>c.style.opacity='0');
+    }
+
+    // override visuals for the two special cases
+    if(exploreCycle && (ph.id==='OBSERVE' || ph.id==='RECORD')){
+      setActiveEdge(ph.id==='OBSERVE' ? 'director>explorer' : 'explorer>env', 0xd6b656);
+      setActiveNode('explorer');
+      setPhaseUI('EXPLORE', 'No trustworthy model yet — the Explorer floor gathers evidence with safe probes.', 0xd6b656);
+    }
+    if(abortCycle && ph.id==='EXECUTE'){
+      setActiveEdge('executor>induction', 0xe0524d);
+      setActiveNode('induction');
+      setPhaseUI('ABORT', 'Reality ≠ prediction → the surprise is sent back to Induction as a counterexample.', 0xe0524d);
+    }
+  }
+
+  let winFlash = 0;
+  function winLevel(){ winFlash = 1; newLevel(); planFromAvatar(); }
+
+  // ---------------------------------------------------------------------------
+  // Visual state helpers
+  // ---------------------------------------------------------------------------
+  let activeEdgeKey = null, activeEdgeColor = 0x5fd0ff, activeNodeKey = null;
+  function setActiveEdge(key, color){
+    // reset all edges to idle
+    for(const k in edges){ edges[k].mat.opacity = edges[k].idle; edges[k].mat.color.copy(edges[k].col); }
+    activeEdgeKey = key; activeEdgeColor = color;
+    const e = edges[key];
+    if(e){ e.mat.opacity = 0.9; e.mat.color.set(color); focus.visible = true; focus.material.color.set(color); focusGlow.material.color.set(color); }
+    else focus.visible = false;
+  }
+  function setActiveNode(key){ activeNodeKey = key; }
+
+  const highlight = new Set();          // concept / selection highlight
+  function setHighlight(keys){ highlight.clear(); (keys||[]).forEach(k=>highlight.add(k)); }
+
+  function setPhaseUI(id, text, color){
+    document.getElementById('phaseLabel').textContent = id;
+    document.getElementById('phaseText').textContent = text;
+    const hex = '#'+new THREE.Color(color).getHexString();
+    const dot = document.getElementById('phaseDot');
+    dot.style.background = hex; dot.style.boxShadow = `0 0 10px ${hex}`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Info card + interaction
+  // ---------------------------------------------------------------------------
+  const infoEl = document.getElementById('info');
+  function showInfo(data){
+    document.getElementById('infoTag').textContent = data.tag;
+    document.getElementById('infoTag').style.background = '#'+new THREE.Color(data.color).getHexString();
+    document.getElementById('infoTitle').textContent = data.title;
+    document.getElementById('infoBody').textContent = data.body;
+    infoEl.style.display = 'block';
+  }
+  document.getElementById('infoClose').onclick = ()=>{ infoEl.style.display='none'; setHighlight([]); };
+
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let downXY = null;
+  renderer.domElement.addEventListener('pointerdown', e=>{ downXY=[e.clientX,e.clientY]; });
+  renderer.domElement.addEventListener('pointerup', e=>{
+    if(!downXY) return;
+    const moved = Math.hypot(e.clientX-downXY[0], e.clientY-downXY[1]);
+    downXY = null;
+    if(moved>6) return;   // was a drag, not a click
+    pointer.x = (e.clientX/innerWidth)*2-1;
+    pointer.y = -(e.clientY/innerHeight)*2+1;
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(pickables, false)[0];
+    if(hit){ const key = hit.object.userData.key; showInfo(INFO[key]); setHighlight([key]); }
+  });
+  renderer.domElement.addEventListener('pointermove', e=>{
+    pointer.x=(e.clientX/innerWidth)*2-1; pointer.y=-(e.clientY/innerHeight)*2+1;
+    raycaster.setFromCamera(pointer,camera);
+    renderer.domElement.style.cursor = raycaster.intersectObjects(pickables,false).length ? 'pointer':'default';
+  });
+
+  document.querySelectorAll('.concepts button').forEach(b=>{
+    b.onclick = ()=>{ const c = CONCEPTS[b.dataset.concept]; showInfo(c); setHighlight(c.nodes); };
+  });
+
+  document.getElementById('playBtn').onclick = e=>{
+    running = !running; e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+  };
+  document.getElementById('speed').oninput = e=>{ speed = parseFloat(e.target.value); };
+  document.getElementById('camBtn').onclick = ()=>{
+    camera.position.set(19,17,23); controls.target.set(0,3,0);
+  };
+
+  addEventListener('resize', ()=>{
+    camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+    labelRenderer.setSize(innerWidth, innerHeight);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Animation loop
+  // ---------------------------------------------------------------------------
+  newLevel(); planFromAvatar(); enterPhase(0);
+  const clock = new THREE.Clock();
+
+  function tick(){
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = clock.elapsedTime;
+
+    if(running){
+      phaseTime += dt * speed;
+      if(phaseTime >= PHASE_T){ phaseTime -= PHASE_T; phaseIdx = (phaseIdx+1)%PHASES.length; enterPhase(phaseIdx); }
+    }
+    const pp = phaseTime / PHASE_T;      // 0..1 within phase
+    const ph = PHASES[phaseIdx];
+
+    // avatar movement during EXECUTE (eased), plus a gentle hover bob
+    if(ph.id==='EXECUTE' && moveFrom && moveTo){
+      const e = pp<0.5 ? 2*pp*pp : 1-Math.pow(-2*pp+2,2)/2;
+      avatarMesh.position.lerpVectors(cell(moveFrom[0],moveFrom[1],0.45), cell(moveTo[0],moveTo[1],0.45), e);
+    }
+    avatarMesh.position.y = 0.45 + Math.sin(t*3)*0.05;
+    avatarMesh.rotation.y = t*0.6;
+
+    // node emissive: base + active-phase boost + highlight pulse
+    for(const k in nodes){
+      const nd = nodes[k];
+      let target = nd.baseEmissive;
+      if(k===activeNodeKey) target = 0.95;
+      if(highlight.has(k)) target = Math.max(target, 0.6 + Math.sin(t*4)*0.25);
+      nd.glow += (target - nd.glow) * Math.min(1, dt*8);
+      nd.mat.emissiveIntensity = nd.glow;
+      const on = (k===activeNodeKey) || highlight.has(k);
+      nd.labelDiv.classList.toggle('active', on);
+      nd.labelDiv.classList.toggle('dim', highlight.size>0 && !highlight.has(k));
+      const s = 1 + (k===activeNodeKey ? 0.06 + Math.sin(t*6)*0.03 : 0);
+      nd.group.scale.setScalar(s);
+    }
+
+    // ambient pulses drift around the ring
+    ambient.forEach(a=>{
+      const tt = (t*0.06*speed + a.off) % 1;
+      a.mesh.position.copy(a.curve.getPoint(tt));
+    });
+    // focus pulse rides the active edge
+    if(focus.visible && edges[activeEdgeKey]){
+      focus.position.copy(edges[activeEdgeKey].curve.getPoint(Math.min(0.98, pp)));
+      focusGlow.scale.setScalar(1 + Math.sin(t*8)*0.25);
+    }
+
+    // world-model ghost fade + planning search animation
+    ghostOpacity += (ghostTarget - ghostOpacity) * Math.min(1, dt*4);
+    ghostGrid.material.opacity = 0.15 + 0.45*ghostOpacity;
+    ghostBase.material.opacity = 0.20*ghostOpacity;
+    ghostAvatar.material.opacity = 0.9*ghostOpacity;
+    beam.material.opacity = 0.28*ghostOpacity;
+    ghostAvatar.position.copy(cell(avatar[0],avatar[1],0.35));
+    ghost.rotation.y = Math.sin(t*0.3)*0.04;
+
+    // reveal BFS frontier on the ghost during PLAN
+    if(plan){
+      const reveal = ph.id==='PLAN' ? Math.floor(pp * plan.visit.length) : (ghostOpacity>0.05 ? plan.visit.length : 0);
+      const onPath = new Set(plan.path.map(c=>idx(c[0],c[1])));
+      for(let i=0;i<markers.length;i++){
+        const m = markers[i];
+        if(i < reveal){
+          const [cx,cy] = plan.visit[i];
+          const ci = idx(cx,cy);
+          m.visible = true;
+          m.position.copy(cell(cx,cy,0.05));
+          const isPath = onPath.has(ci) && (ph.id!=='PLAN' || pp>0.72);
+          m.material.color.set(isPath ? 0xffcf4d : 0x5fd0ff);
+          m.material.opacity = (isPath ? 0.85 : 0.28) * ghostOpacity;
+        } else if(m.visible){ m.visible=false; }
+      }
+    }
+
+    // hazard shimmer + goal ring spin + win flash
+    if(hazMeshes) hazMeshes.forEach((m,i)=> m.material.emissiveIntensity = 0.4 + Math.sin(t*4+i)*0.2);
+    if(goalRing){ goalRing.rotation.z = t*1.5; goalRing.scale.setScalar(1 + Math.sin(t*3)*0.06); }
+    if(winFlash>0){
+      winFlash = Math.max(0, winFlash - dt*1.2);
+      avatarMesh.material.emissiveIntensity = 0.7 + winFlash*2.5;
+    }
+
+    controls.update();
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "model_type": "standardized_logistic_regression",
+  "purpose": "Conservative trajectory-success signal for confidence-gated recovery",
+  "source": {
+    "url": "https://raw.githubusercontent.com/Tufalabs/duck-harness/main/example-run/benchmark.json",
+    "sha256": "95ad9c4f98fe65b5639f86221a13164420b6cba75b85777eb323403bc8c371d4",
+    "trajectory_count": 500,
+    "game_count": 25,
+    "license": "MIT",
+    "feature_checkpoint": "Every 16 actions after action 64 within a level"
+  },
+  "features": [
+    "elapsed_minutes",
+    "generated_tokens_10k",
+    "request_action_ratio",
+    "zero_token_ratio",
+    "dominant_action_ratio",
+    "action_switch_rate",
+    "unique_action_ratio",
+    "mouse_ratio",
+    "prior_levels"
+  ],
+  "means": [
+    144.52289848776533,
+    3.3132878647522,
+    0.2582754241082707,
+    0.7417245758917294,
+    0.5070910407503603,
+    0.2720124938966048,
+    0.8121043693067778,
+    0.23132619040038613,
+    0.06206577119036591
+  ],
+  "scales": [
+    112.64256458417547,
+    1.392959939966038,
+    0.13582984534384987,
+    0.13582984534384987,
+    0.2307849923241927,
+    0.19265344015560712,
+    0.24443716298907792,
+    0.35259540793812555,
+    0.11651132823260843
+  ],
+  "intercept": -2.5747981226216026,
+  "weights": [
+    0.05659763241681123,
+    -0.27886832509335985,
+    0.03347372169983175,
+    -0.03347372169983107,
+    -0.2187252310545733,
+    -0.028522545607463718,
+    0.1651131103362349,
+    0.07751723849307382,
+    -0.3269442501497157
+  ],
+  "validation": {
+    "method": "leave-one-game-out",
+    "sample_count": 2159,
+    "positive_count": 154,
+    "auc": 0.4903909058522525,
+    "promotion_target_met": false,
+    "note": "Published benchmark JSON lacks frame-change and hypothesis-consistency features. The model is deliberately only one input to a conjunctive recovery gate and cannot trigger recovery by itself."
+  }
+}

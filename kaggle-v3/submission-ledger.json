@@ -1,0 +1,104 @@
+{
+  "submissions": [
+    {
+      "baseline_experiment": "duck-reference-early-private-baseline",
+      "config_hash": "f3f5e6447c2ce96ec60ae2303d85e18fdf3140329aeb0fc5c29701f3e2a0b4b5",
+      "experiment": "gateway-repair-v2",
+      "fidelity_validation_score": 1.766177970833845,
+      "fidelity_validation_version": 5,
+      "five_seed_gate_deferred": true,
+      "git_sha": "c89cd3edfbfef51c99337a88fa070db73a230d00",
+      "leaderboard_best_before": 1.86,
+      "prompt_sha256": "02b3afa478686c886b30eab90044d1153ccd03793ca4f6e95b1d75dd42e6e3ac",
+      "reason": "conserve the weekly Kaggle GPU quota for the hidden 110-game run",
+      "repair": {
+        "change": "Configure ARC_API_KEY=test-key-123, ARC_BASE_URL=http://gateway:8001/, recordings, and Duck submission flags before hidden gateway discovery.",
+        "previous_failed_submission_references": [
+          "55075061",
+          "55077185"
+        ]
+      },
+      "result": "complete",
+      "runtime_profile": {
+        "flashinfer": "0.6.6",
+        "gpu": "NvidiaRtxPro6000",
+        "model": "vrfai/Qwen3.6-27B-FP8",
+        "torch": "2.10.0",
+        "vllm": "0.19.0"
+      },
+      "seed_validation_versions": {
+        "0": 6,
+        "1": 7
+      },
+      "source_dataset": "kinwochan/ouroboros-arc-agi-3-v3-source",
+      "source_manifest_sha256": "fc041dce18e0f0b54d0cf7d3128235a0eeeb4b8aa3b3b97eee055d18db06f581",
+      "submission_created_at": "2026-07-29T10:37:37.863000+00:00",
+      "submission_kernel": "kinwochan/ouroboros-arc-agi-3-v3",
+      "submission_kernel_script_version_id": 338799175,
+      "submission_reference": "55079344",
+      "submission_result": {
+        "date": "2026-07-29 10:37:37.863000",
+        "description": "kaggle-v3 gateway-repair-v2 git=c89cd3edfbfe src=fc041dce18e0 cfg=f3f5e6447c2c val2=1.3082 qwen3.6-27b-fp8/vllm0.19",
+        "fileName": "submission.parquet",
+        "privateScore": "",
+        "publicScore": "0.80",
+        "ref": "55079344",
+        "status": "SubmissionStatus.COMPLETE"
+      },
+      "submission_version": 2,
+      "target": 1.87,
+      "validation_kernel": "kinwochan/ouroboros-arc-agi-3-v3-validation",
+      "validation_scores": {
+        "mean_engine_score": 1.3081755365847543,
+        "seed_engine_scores": [
+          1.7816223637578599,
+          0.8347287094116486
+        ]
+      },
+      "validation_source_manifest_sha256": "cd76b319e445c5ccd9079932d08c29baa1ec599d8aa203e9df19536be5e96e50",
+      "verified_at": "2026-07-29T19:34:06+00:00"
+    },
+    {
+      "experiment": "duck-audit-v1",
+      "git_sha": "c89cd3edfbfef51c99337a88fa070db73a230d00",
+      "config_hash": "b4f8bbbfbe613bb2f3e9ed68699f4d0eef7f3022636be276684a8d65cfef70c8",
+      "validation_config_hash": "93c15bced9077217a513655e4fcd9a92fff4729ebe7004b66121989c783ce66c",
+      "source_dataset": "kinwochan/ouroboros-arc-agi-3-v3-source",
+      "source_dataset_version": 17,
+      "source_manifest_sha256": "6e49cea924ec22f223ab58414ccbc0597da268c43153c497ba19230f60a1c2ed",
+      "validation_kernel": "kinwochan/ouroboros-arc-agi-3-v3-validation",
+      "validation_version": 14,
+      "validation_metrics_path": "results/duck-audit-seed-0-v14/validation_metrics.json",
+      "validation_scores": {
+        "game_count": 25,
+        "mean_engine_score": 2.5530540612860815,
+        "mean_completed_levels": 0.72,
+        "median_completed_levels": 1,
+        "total_completed_levels": 18
+      },
+      "submission_kernel": "kinwochan/ouroboros-arc-agi-3-v3",
+      "submission_version": 3,
+      "submission_reference": "55174267",
+      "submission_created_at": "2026-08-02T01:02:43.793000+00:00",
+      "submission_result": {
+        "date": "2026-08-02 01:02:43.793000",
+        "description": "kaggle-v3 duck-audit-v1 git=c89cd3edfbfe src=6e49cea924ec cfg=b4f8bbbfbe61 val=2.5531 qwen3.6-27b-fp8/vllm0.19",
+        "fileName": "submission.parquet",
+        "privateScore": "",
+        "publicScore": "0.72",
+        "ref": "55174267",
+        "status": "SubmissionStatus.COMPLETE"
+      },
+      "runtime_profile": {
+        "flashinfer": "0.6.6",
+        "gpu": "NvidiaRtxPro6000",
+        "model": "vrfai/Qwen3.6-27B-FP8",
+        "torch": "2.10.0",
+        "vllm": "0.19.0"
+      },
+      "visible_score": 0.72,
+      "result": "complete",
+      "status_checked_at": "2026-08-02T20:12:17+10:00"
+    }
+  ]
+}

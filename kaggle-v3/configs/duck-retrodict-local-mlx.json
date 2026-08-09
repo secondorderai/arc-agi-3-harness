@@ -1,0 +1,15 @@
+{
+  "experiment": "duck-retrodict-v1-local",
+  "mode": "duck-retrodict",
+  "profile": "local-mlx",
+  "model_id": "qwen3.5:4b-mlx",
+  "base_url": "http://127.0.0.1:11434/v1",
+  "concurrency": 2,
+  "local_workers": 2,
+  "seed": 0,
+  "analyzer_timeout_s": 180.0,
+  "local_game_cap_s": 360,
+  "model_failure_floor": 1,
+  "retrodict_max_rules": 256,
+  "retrodict_prediction_threshold": 0.9
+}

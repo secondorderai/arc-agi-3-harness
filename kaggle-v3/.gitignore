@@ -1,0 +1,10 @@
+.venv/
+dist/
+notebooks/
+results/
+logs/
+__pycache__/
+*.pyc
+.pytest_cache/
+.kaggle/
+*.egg-info/
